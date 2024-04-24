@@ -5,19 +5,27 @@
     </div>
     <div class="floor">
       <h1>{{ props.floor }}</h1>
-      <button></button>
+      <button @click="floorConsole"></button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import Elevator from "./Elevator.vue";
 import { useStore } from "vuex";
 
 const store = useStore();
-const currentFloor = ref(store.state.currentFloor);
 const props = defineProps(["floor"]);
+
+const currentFloor = computed(() => store.state.currentFloor);
+
+const floorConsole = () => {
+  store.commit("setArrayFloorWaiting", props.floor);
+  if (store.state.arrayFloorWaiting.length === 1 && store.state.booleanFloor) {
+    store.dispatch("elevatorMovement");
+  }
+};
 </script>
 
 <style lang="scss" scoped>

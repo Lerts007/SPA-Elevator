@@ -4,7 +4,6 @@ import { useStore } from "vuex";
 
 const store = useStore();
 const countFloor = store.state.countFloor;
-console.log(countFloor);
 </script>
 
 <template>
