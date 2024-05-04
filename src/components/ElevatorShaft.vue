@@ -1,6 +1,6 @@
 <template>
   <div class="shaft">
-    <div class="elevator-shaft">
+    <div v-for="n in store.state.elevators.length" class="elevator-shaft">
       <Elevator v-if="props.floor === currentFloor" />
     </div>
     <div class="floor">
