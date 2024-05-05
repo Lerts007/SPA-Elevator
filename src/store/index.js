@@ -3,12 +3,11 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     countFloor: 5,
-    currentFloor: 1,
-    arrayFloorWaiting: [],
-    booleanFloor: true, //заглушка, чтобы в компоненте повторно не вызывался elevatorMovement если вызывается один и тот же этаж
+    floorWaiting: [],
     elevators: [
       {
         name: "Elevator 1",
+        currentFloor: 1,
       },
     ],
   },
@@ -25,6 +24,7 @@ export default createStore({
       }
     },
 
+    // изменение количества лифтов
     settingElevator(state, number) {
       if (number === 1) {
         if (state.elevators.length === 4) {
@@ -32,6 +32,7 @@ export default createStore({
         } else {
           state.elevators.push({
             name: "Elevator " + (state.elevators.length + 1),
+            currentFloor: 3,
           });
         }
       }
@@ -45,80 +46,27 @@ export default createStore({
       console.log(state.elevators);
     },
 
-    setCurrentFloor(state, floor) {
-      state.currentFloor = floor;
-    },
-    setArrayFloorWaiting(state, floor) {
-      if (
-        floor !== state.currentFloor &&
-        floor !== state.arrayFloorWaiting[state.arrayFloorWaiting.length - 1]
-      ) {
-        state.arrayFloorWaiting.push(floor);
-        state.booleanFloor = true;
-      } else {
-        state.booleanFloor = false;
+    // Заполнение floorWaiting этажами которые были вызваны
+    setFloorWaiting(state, newFloor) {
+      // проверка что лифт(ы) не стоит(ят) на этаже вызова
+      const counterElevator = state.elevators.filter(
+        (elevator) => elevator.currentFloor === newFloor
+      );
+
+      // проверка что данного этажа нет в ожидании
+      const counterFloor = state.floorWaiting.filter(
+        (floor) => floor === newFloor
+      );
+
+      //
+      if (counterElevator.length === 0 && counterFloor.length === 0) {
+        state.floorWaiting.push(newFloor);
       }
-      console.log(state.arrayFloorWaiting);
-      console.log(floor === state.arrayFloorWaiting.slice(-1)[0]);
+
+      console.log("Этажи в ожидании лифта: " + state.floorWaiting);
     },
   },
   actions: {
-    elevatorMovement(context) {
-      const arrFloor = context.state.arrayFloorWaiting;
-      let floor = context.state.currentFloor; // текущий этаж
-
-      if (arrFloor.length > 0) {
-        setTimeout(() => {
-          const callFloor = arrFloor[0]; // этаж на который был вызван лифт
-
-          // Функция для перемещения лифта к вызванному этажу
-          const moveUpElevator = () => {
-            if (floor !== callFloor) {
-              console.log(callFloor);
-              console.log(arrFloor);
-
-              // Если лифт не на нужном этаже, перемещать его на один этаж
-              floor += 1;
-              context.commit("setCurrentFloor", floor);
-              if (arrFloor.indexOf(floor) !== -1) {
-                arrFloor.splice(arrFloor.indexOf(floor), 1);
-                return setTimeout(moveUpElevator, 3000);
-              }
-              return setTimeout(moveUpElevator, 1000);
-            } else {
-              setTimeout(() => context.dispatch("elevatorDown"), 3000);
-            }
-          };
-
-          moveUpElevator();
-        }, 1000);
-      }
-    },
-
-    elevatorDown(context) {
-      const arrFloor = context.state.arrayFloorWaiting;
-      let floor = context.state.currentFloor; // текущий этаж
-
-      console.log(arrFloor);
-
-      // Функция для перемещения лифта на первый этаж после достежения вызванного этажа
-      const moveDownElevator = () => {
-        if (floor !== 1) {
-          // Если лифт не на нужном этаже, перемещать его на один этаж
-          floor -= 1;
-          context.commit("setCurrentFloor", floor);
-
-          if (arrFloor.indexOf(floor) !== -1) {
-            arrFloor.splice(arrFloor.indexOf(floor), 1);
-            return setTimeout(moveDownElevator, 3000);
-          }
-          return setTimeout(moveDownElevator, 1000);
-        } else {
-          setTimeout(() => context.dispatch("elevatorMovement"), 1000);
-        }
-      };
-
-      moveDownElevator();
-    },
+    elevatorMovement(context) {},
   },
 });

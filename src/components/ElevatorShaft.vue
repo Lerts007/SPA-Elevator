@@ -1,30 +1,27 @@
 <template>
   <div class="shaft">
     <div v-for="n in store.state.elevators.length" class="elevator-shaft">
-      <Elevator v-if="props.floor === currentFloor" />
+      <Elevator
+        v-if="props.floor === store.state.elevators[n - 1].currentFloor"
+      />
     </div>
     <div class="floor">
       <h1>{{ props.floor }}</h1>
-      <button @click="floorConsole"></button>
+      <button @click="callFloor"></button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
 import Elevator from "./Elevator.vue";
+import { computed } from "vue";
 import { useStore } from "vuex";
 
 const store = useStore();
 const props = defineProps(["floor"]);
 
-const currentFloor = computed(() => store.state.currentFloor);
-
-const floorConsole = () => {
-  store.commit("setArrayFloorWaiting", props.floor);
-  if (store.state.arrayFloorWaiting.length === 1 && store.state.booleanFloor) {
-    store.dispatch("elevatorMovement");
-  }
+const callFloor = () => {
+  store.commit("setFloorWaiting", props.floor);
 };
 </script>
 
