@@ -3,11 +3,20 @@
     <div v-for="n in store.state.elevators.length" class="elevator-shaft">
       <Elevator
         v-if="props.floor === store.state.elevators[n - 1].currentFloor"
+        :index="n - 1"
       />
     </div>
     <div class="floor">
       <h1>{{ props.floor }}</h1>
-      <button @click="callFloor"></button>
+      <button
+        :class="{
+          indicatorRun: floorRun,
+          'indicatorRun::after': floorRun,
+          indicatorWait: floorWait,
+          'indicatorWait::after': floorWait,
+        }"
+        @click="callFloor"
+      ></button>
     </div>
   </div>
 </template>
@@ -21,8 +30,25 @@ const store = useStore();
 const props = defineProps(["floor"]);
 
 const callFloor = () => {
-  store.commit("setFloorWaiting", props.floor);
+  store.dispatch("elevatorMovement", props.floor);
 };
+
+const floorRun = computed(() => {
+  const indicator = store.state.elevators.findIndex(
+    (elevator) => elevator.nextFloor === props.floor
+  );
+  console.log(indicator);
+  return indicator !== -1 ? true : false;
+});
+
+const floorWait = computed(() => {
+  const indicator = store.state.floorWaiting.findIndex(
+    (floor) => floor === props.floor
+  );
+  console.log(indicator);
+
+  return indicator !== -1 ? true : false;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -68,5 +94,19 @@ const callFloor = () => {
       background-color: $accentColor;
     }
   }
+}
+
+.indicatorRun {
+  border: 1px solid #fd45fd !important;
+}
+.indicatorRun::after {
+  background-color: #fd45fd !important;
+}
+
+.indicatorWait {
+  border: 1px solid #45fdad !important;
+}
+.indicatorWait::after {
+  background-color: #45fdad !important;
 }
 </style>
